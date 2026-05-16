@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { MathFormula } from './MathFormula';
 import { QuizWidget } from './QuizWidget';
+import { PracticeWidget } from './PracticeWidget';
 
 const SectionTitle = ({ icon, title }) => (
   <div className="flex items-center gap-3 mb-4">
@@ -123,8 +124,18 @@ export function LessonContent({ lesson, onComplete }) {
       )
     },
     {
+      id: 'practice',
+      icon: '✏️',
+      title: 'Harjutusülesanded',
+      render: () => (
+        <div className="mb-6">
+          <PracticeWidget lesson={lesson} />
+        </div>
+      )
+    },
+    {
       id: 'connection',
-      icon: '~',
+      icon: '🔗',
       title: 'Seosed teiste teemadega',
       render: () => (
         <Card glow="violet">

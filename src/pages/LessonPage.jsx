@@ -36,10 +36,10 @@ export default function LessonPage() {
     );
   }
 
-  const sections = ['hook', 'history', 'intuition', 'formal', 'examples', 'quiz', 'connection', 'summary'];
+  const sections = ['hook', 'history', 'intuition', 'formal', 'examples', 'quiz', 'practice', 'connection', 'summary'];
   const sectionLabels = {
     hook: 'Sissejuhatus', history: 'Ajalugu', intuition: 'Intuitsioon', formal: 'Teooria',
-    examples: 'Näited', quiz: 'Test', connection: 'Seosed', summary: 'Kokkuvõte'
+    examples: 'Näited', quiz: 'Test', practice: 'Harjutus', connection: 'Seosed', summary: 'Kokkuvõte'
   };
 
   return (
@@ -85,8 +85,8 @@ export default function LessonPage() {
         <h1 className="text-3xl md:text-4xl font-bold text-white">{lesson.title}</h1>
       </motion.div>
 
-      {/* Lesson content */}
-      <LessonContent lesson={lesson} onComplete={handleComplete} />
+      {/* Lesson content — key ensures full remount (resets all state) when lesson changes */}
+      <LessonContent key={lessonId} lesson={lesson} onComplete={handleComplete} />
 
       {/* Complete button */}
       {!completed && (
