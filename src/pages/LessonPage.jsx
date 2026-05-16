@@ -17,9 +17,13 @@ export default function LessonPage() {
   const chapter = lesson ? chapters.find(c => c.id === lesson.chapterId) : null;
   const { prev, next } = getAdjacentLessons(lessonId);
 
+  // Scroll to top only when lesson changes, not when completion state changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [lessonId]);
+
   useEffect(() => {
     setCompleted(isComplete(lessonId));
-    window.scrollTo(0, 0);
   }, [lessonId, isComplete]);
 
   const handleComplete = () => {

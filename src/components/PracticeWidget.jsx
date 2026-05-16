@@ -36,7 +36,10 @@ function PracticeQuestion({ exercise, index, total, onAnswered }) {
 
       <div className="p-5 space-y-4">
         {/* Question */}
-        <p className="text-slate-200 leading-relaxed">{exercise.question}</p>
+        <div>
+          <p className="text-xs font-semibold text-violet-400 uppercase tracking-wider mb-2">Ülesanne</p>
+          <p className="text-slate-200 leading-relaxed">{exercise.question}</p>
+        </div>
 
         {/* Answer input */}
         {!revealed && (
@@ -126,13 +129,17 @@ function PracticeQuestion({ exercise, index, total, onAnswered }) {
 }
 
 export function PracticeWidget({ lesson }) {
-  // Generate practice exercises from lesson examples
-  const exercises = lesson.examples.map((ex, i) => ({
-    title: ex.title,
-    question: `Lahenda iseseisvalt: ${ex.title}`,
-    steps: ex.steps,
-    formula: ex.formula,
-  }));
+  // Build exercises from examples: problem = first step, solution = remaining steps
+  const exercises = lesson.examples.map((ex) => {
+    const [problemStep, ...solutionSteps] = ex.steps;
+    return {
+      title: ex.title,
+      // First step is the problem statement (e.g. "Teisenda 45° radiaanideks")
+      question: problemStep,
+      steps: solutionSteps.length > 0 ? solutionSteps : ex.steps,
+      formula: ex.formula,
+    };
+  });
 
   const [answers, setAnswers] = useState({}); // index → true/false
   const [allDone, setAllDone] = useState(false);
