@@ -5,7 +5,8 @@ import { MathFormula } from './MathFormula';
 function PracticeQuestion({ exercise, index, total, onAnswered }) {
   const [answer, setAnswer] = useState('');
   const [revealed, setRevealed] = useState(false);
-  const [selfScore, setSelfScore] = useState(null); // 'correct' | 'wrong'
+  const [selfScore, setSelfScore] = useState(null);
+  const [hintShown, setHintShown] = useState(false);
 
   const handleReveal = () => {
     if (!answer.trim()) return;
@@ -40,6 +41,36 @@ function PracticeQuestion({ exercise, index, total, onAnswered }) {
           <p className="text-xs font-semibold text-violet-400 uppercase tracking-wider mb-2">Ülesanne</p>
           <p className="text-slate-200 leading-relaxed">{exercise.question}</p>
         </div>
+
+        {/* Collapsible formula hint */}
+        {exercise.formula && !revealed && (
+          <div>
+            <button
+              onClick={() => setHintShown(h => !h)}
+              className="flex items-center gap-2 text-xs text-amber-400/70 hover:text-amber-300 transition-colors group"
+            >
+              <span className={`transition-transform duration-200 ${hintShown ? 'rotate-90' : ''}`}>▶</span>
+              {hintShown ? 'Peida vihje' : 'Näita vihjet (valem)'}
+            </button>
+            <AnimatePresence>
+              {hintShown && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="overflow-hidden"
+                >
+                  <div className="mt-2 rounded-lg border border-amber-500/20 bg-amber-500/5 px-4 py-3">
+                    <p className="text-xs text-amber-400/60 mb-2">Vihje — valem:</p>
+                    <div className="katex-display !border-amber-500/30 !bg-amber-500/5">
+                      <MathFormula formula={exercise.formula} display={true} />
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
 
         {/* Answer input */}
         {!revealed && (
