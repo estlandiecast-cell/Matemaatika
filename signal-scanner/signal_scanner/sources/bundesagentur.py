@@ -7,17 +7,19 @@ being documented as title-only). Detail endpoint /pc/v4/jobdetails/{id}
 (base64 of referenznummer) is confirmed and holds the full description
 text needed for verbatim sentence extraction. See
 github.com/bundesAPI/jobsuche-api.
+
+Sector: no sector/branche field exists anywhere in the confirmed search
+or jobdetails schema. sector is always null for this source -- not
+guessed from the job title or occupation field.
 """
 
 import base64
 import datetime
 import logging
-import time
-
-import requests
 
 from ..config import QUERY_TERMS, USER_AGENT
 from ..extract import find_matching_sentences_in_text
+from ..httpcache import CachedClient
 
 log = logging.getLogger(__name__)
 
@@ -26,6 +28,7 @@ SEARCH_URL = "https://rest.arbeitsagentur.de/jobboerse/jobsuche-service/pc/v6/jo
 DETAIL_URL = "https://rest.arbeitsagentur.de/jobboerse/jobsuche-service/pc/v4/jobdetails/{}"
 RESULTS_PER_PAGE = 50
 MAX_PAGES_PER_TERM = 4
+MIN_INTERVAL_SECONDS = 1.0
 
 TERMS_DE = QUERY_TERMS["de"]
 
@@ -34,38 +37,19 @@ def _headers() -> dict:
     return {"X-API-Key": API_KEY, "User-Agent": USER_AGENT}
 
 
-def _search_page(session: requests.Session, term: str, page: int) -> dict:
-    resp = session.get(
-        SEARCH_URL,
-        headers=_headers(),
-        params={"was": term, "size": RESULTS_PER_PAGE, "page": page},
-        timeout=30,
-    )
-    resp.raise_for_status()
-    return resp.json()
-
-
-def _fetch_detail(session: requests.Session, refnr: str) -> dict | None:
-    encoded = base64.b64encode(refnr.encode()).decode()
-    resp = session.get(DETAIL_URL.format(encoded), headers=_headers(), timeout=30)
-    if resp.status_code == 404:
-        return None
-    resp.raise_for_status()
-    return resp.json()
-
-
-def fetch() -> list[dict]:
-    session = requests.Session()
+def fetch(cache_dir: str) -> list[dict]:
+    client = CachedClient(f"{cache_dir}/bundesagentur", MIN_INTERVAL_SECONDS)
     retrieved_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
 
     candidate_refnrs: set[str] = set()
 
     for term in TERMS_DE:
         for page in range(1, MAX_PAGES_PER_TERM + 1):
-            try:
-                data = _search_page(session, term, page)
-            except requests.RequestException as exc:
-                log.warning("Bundesagentur search failed (%r, page %d): %s", term, page, exc)
+            data = client.request_json(
+                "GET", SEARCH_URL, params={"was": term, "size": RESULTS_PER_PAGE, "page": page}, headers=_headers()
+            )
+            if data is None:
+                log.warning("Bundesagentur: giving up on term=%r page=%d after repeated failures", term, page)
                 break
 
             results = data.get("ergebnisliste") or []
@@ -75,27 +59,35 @@ def fetch() -> list[dict]:
                 refnr = job.get("referenznummer")
                 if refnr:
                     candidate_refnrs.add(refnr)
+                else:
+                    log.warning("Bundesagentur: search hit with no referenznummer, title=%r", job.get("stellenangebotsTitel"))
 
             total = data.get("maxErgebnisse") or 0
             if page * RESULTS_PER_PAGE >= total:
                 break
-            time.sleep(0.2)
 
     rows: list[dict] = []
     for refnr in candidate_refnrs:
-        try:
-            detail = _fetch_detail(session, refnr)
-        except requests.RequestException as exc:
-            log.warning("Bundesagentur jobdetails failed (%s): %s", refnr, exc)
-            continue
-        if not detail:
+        encoded = base64.b64encode(refnr.encode()).decode()
+        detail = client.request_json("GET", DETAIL_URL.format(encoded), headers=_headers())
+        if detail is None:
+            log.warning("Bundesagentur: jobdetails fetch failed for refnr=%s -- skipped", refnr)
             continue
 
         description = detail.get("stellenangebotsBeschreibung") or ""
-        matches = find_matching_sentences_in_text(description, TERMS_DE)
-        if not matches:
+        if not description:
+            log.warning("Bundesagentur: no description text for refnr=%s -- skipped", refnr)
             continue
 
+        matches = find_matching_sentences_in_text(description, TERMS_DE)
+        if not matches:
+            log.warning(
+                "Bundesagentur: no verbatim sentence extracted for refnr=%s title=%r (matched search but not confirmed in description text) -- skipped",
+                refnr, detail.get("stellenangebotsTitel"),
+            )
+            continue
+
+        sentence, matched_term = matches[0]
         locations = detail.get("stellenlokationen") or []
         countries = sorted({
             (loc.get("adresse") or {}).get("land")
@@ -106,21 +98,19 @@ def fetch() -> list[dict]:
         salary = salary_code if salary_code and salary_code != "KEINE_ANGABEN" else None
         url = f"https://www.arbeitsagentur.de/jobsuche/jobdetail/{refnr}"
 
-        for sentence, matched_term in matches:
-            rows.append(
-                {
-                    "source": "bundesagentur",
-                    "employer": detail.get("firma"),
-                    "title": detail.get("stellenangebotsTitel"),
-                    "country": ",".join(countries) or "DEUTSCHLAND",
-                    "sentence": sentence,
-                    "matched_term": matched_term,
-                    "salary": salary,
-                    "url": url,
-                    "retrieved_at": retrieved_at,
-                }
-            )
-        time.sleep(0.1)
+        rows.append(
+            {
+                "employer": detail.get("firma"),
+                "title": detail.get("stellenangebotsTitel"),
+                "country": ",".join(countries) or "DEUTSCHLAND",
+                "sector": None,
+                "salary_if_stated": salary,
+                "verbatim_sentence": sentence,
+                "full_url": url,
+                "retrieved_at": retrieved_at,
+                "source_api": "bundesagentur",
+            }
+        )
 
-    log.info("Bundesagentur: %d candidate jobs scanned, %d sentence matches", len(candidate_refnrs), len(rows))
+    log.info("Bundesagentur: %d candidate jobs scanned, %d postings stored", len(candidate_refnrs), len(rows))
     return rows
