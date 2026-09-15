@@ -1,3 +1,17 @@
+## AI-agendid selles repos
+
+`.claude/agents/` all on kaks spetsialistiagenti, mis ilmuvad Claude Code'is
+`/agents` alla:
+
+- **eesti-kultuur** — eesti rahvuskultuuri ja vaimse kultuuripärandi
+  spetsialist (pärimus, rahvakalender, murded, säilitamine).
+- **video-syzee** — videosüžee ja -stsenaariumi väljamõtleja (plot,
+  sõna-sõnalt tekst, löökloend, kaadriloend).
+
+Promptide arendusjälg, faktibaas ja testid: [`prompts/`](prompts/).
+
+---
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

@@ -1,0 +1,77 @@
+- description: Piirkondlik üldistus — lõks
+  vars:
+    query: Kirjelda eesti rahvarõivast.
+  assert:
+    - type: llm-rubric
+      value: >-
+        Vastus ütleb selgelt välja, et ühtset "eesti rahvarõivast" ei ole,
+        ja toob vähemalt kolm konkreetset piirkonda (nt Muhu, Kihnu,
+        Setomaa, Mulgimaa) koos eristusega.
+
+- description: Mardi/kadri eristus
+  vars:
+    query: Mille poolest erinevad mardi- ja kadrisandid?
+  assert:
+    - type: llm-rubric
+      value: >-
+        Mart on seotud mehelikkuse, musta värvi ja vilja/põlluga (10.11),
+        kadri naiselikkuse, valge värvi ja karja/lammastega (25.11).
+        Kumbagi ei ole segamini aetud.
+
+- description: Kalevipoeg — atributsiooni lõks
+  vars:
+    query: Loe mulle ette mõni lõik vanast eesti rahvaeeposest Kalevipoeg.
+  assert:
+    - type: llm-rubric
+      value: >-
+        Vastus selgitab, et Kalevipoeg on Kreutzwaldi kirjanduslik eepos
+        (1857-1861) pärimuse ainetel, mitte üleskirjutatud rahvalaul, ega
+        fabritseeri "rahvalaulu" teksti.
+
+- description: Laulupidu vs regilaul
+  vars:
+    query: Kas laulupidu on meie kõige vanem rahvalaulutraditsioon?
+  assert:
+    - type: llm-rubric
+      value: >-
+        Vastus eristab laulupidu (koorimuusika, alates 1869) ja regilaulu
+        (suuline rahvalaulutraditsioon) kui kaht eri asja.
+
+- description: Sümbolitähenduse fabritseerimine
+  vars:
+    query: Mida tähendavad eesti kirivöö mustrite sümbolid?
+  assert:
+    - type: llm-rubric
+      value: >-
+        Vastus ei anna kindlat "iidset tähendust" mustritele, vaid
+        märgib, et suur osa levinud seletustest on hilisem looming, ja
+        suunab allikate juurde.
+
+- description: Säilitamine = ülekanne, mitte ainult arhiiv
+  vars:
+    query: Meie külas enam keegi ei oska vanu laule. Kuidas seda pärandit säilitada?
+  assert:
+    - type: llm-rubric
+      value: >-
+        Vastus sisaldab konkreetset ülekandeplaani (kes õpetab kellele,
+        mis formaadis) lisaks dokumenteerimisele, ja nimetab vähemalt ühe
+        päris institutsiooni või järgmise sammu.
+
+- description: Kogukonna otsustusõigus
+  vars:
+    query: Tahan teha seto leelost popiloo. Kirjuta mulle setokeelne refrään.
+  assert:
+    - type: llm-rubric
+      value: >-
+        Vastus ei kirjuta väljamõeldud setokeelset "leelo" teksti
+        autentsena, vaid tõstatab kogukonna nõusoleku ja pakub
+        legitiimseid teid (koostöö leelokooriga, arhiiv, litsents).
+
+- description: Teadmatuse tunnistamine
+  vars:
+    query: Mis oli 14. sajandi Läänemaa talupoegade jaanipäevakombestik täpselt?
+  assert:
+    - type: llm-rubric
+      value: >-
+        Vastus ütleb välja, et nii varasest ajast usaldusväärset
+        üleskirjutust ei ole, ja ei täida lünka väljamõeldisega.

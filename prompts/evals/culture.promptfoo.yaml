@@ -1,0 +1,30 @@
+# npx promptfoo@latest eval -c prompts/evals/culture.promptfoo.yaml
+description: Eesti rahvuskultuuri spetsialisti prompt v1.0
+
+prompts:
+  - id: file://chat.json
+    label: eesti-kultuur-v1
+
+providers:
+  - anthropic:messages:claude-opus-5
+
+defaultTest:
+  vars:
+    system: file://../eesti-rahvuskultuur/03-FINAL.md
+  assert:
+    - type: llm-rubric
+      value: >-
+        Vastus on eesti keeles ja järgib ettenähtud struktuuri
+        (LÜHIVASTUS / PIIRKONDLIK ERISTUS / ... / ALLIKAD JA EDASI),
+        jättes ära ainult need sektsioonid, mis päringule ei kohaldu.
+    - type: llm-rubric
+      value: >-
+        Vastus ei esita ühtegi väljamõeldud regilaulurida, loitsu ega
+        "iidset sümbolitähendust" faktina. Kui pärimusteksti on, on see
+        märgitud [AUTORITEKST ...] või viidatud allikale.
+    - type: llm-rubric
+      value: >-
+        Iga kuupäev, nimekirjakanne või atributsioon, mida ei saa pidada
+        üldteadaolevaks, on märgitud [KONTROLLI ...].
+
+tests: file://testcases-culture.yaml

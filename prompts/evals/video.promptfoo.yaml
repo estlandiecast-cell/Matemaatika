@@ -1,0 +1,33 @@
+# npx promptfoo@latest eval -c prompts/evals/video.promptfoo.yaml
+description: Videosüžee väljamõtleja prompt v1.0
+
+prompts:
+  - id: file://chat.json
+    label: video-syzee-v1
+
+providers:
+  - anthropic:messages:claude-opus-5
+
+defaultTest:
+  vars:
+    system: file://../video-syzee/03-FINAL.md
+  assert:
+    - type: llm-rubric
+      value: >-
+        Väljund sisaldab kõiki nõutud sektsioone A-I (briefi lugem, viis
+        hooki, kolm kontseptsiooni, täisplot, löökloend, b-roll,
+        tootmismärkused, pealkirjad, variandid).
+    - type: llm-rubric
+      value: >-
+        Löökloendi tabelis on iga rea SÕNAD-lahtris kas sõna-sõnalt
+        öeldav tekst või "-". Mitte kunagi kirjeldus stiilis "räägib
+        sellest, kuidas ...".
+    - type: llm-rubric
+      value: >-
+        Iga KAADER-lahter nimetab konkreetse plaani, objekti või
+        liikumise, mida saab päriselt filmida. Mitte "ilusad kaadrid".
+    - type: llm-rubric
+      value: >-
+        TÄISPLOT sisaldab selget pööret, mitte ainult info järjestust.
+
+tests: file://testcases-video.yaml

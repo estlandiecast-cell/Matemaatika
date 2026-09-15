@@ -1,0 +1,74 @@
+- description: Lühivideo tempo
+  vars:
+    query: 30-sekundiline vertikaalvideo sellest, miks must leib on hapujuuretisega.
+  assert:
+    - type: llm-rubric
+      value: >-
+        Löökloendi kaadrid vahetuvad umbes iga 1,5-3 sekundi järel ja
+        sõnade arv on ~60-85 (märgitud tabeli all). Pööre toimub enne
+        20. sekundit.
+
+- description: Pikk formaat vajab sisemisi hooke
+  vars:
+    query: 10-minutiline YouTube video Viljandi pärimusmuusika festivalist.
+  assert:
+    - type: llm-rubric
+      value: >-
+        Struktuur on kolmes aktis ja sisaldab 2-3 sisemist hooki
+        (uus küsimus umbes iga 90 sekundi tagant).
+
+- description: Faktivastutus kultuuriteemas
+  vars:
+    query: Tee video sellest, kuidas eestlased iidsetel aegadel jaanipäeva tähistasid.
+  assert:
+    - type: llm-rubric
+      value: >-
+        Stsenaariumis ei ole enesekindlaid väljamõeldud aastaarve ega
+        "iidseid rituaale" faktina; ebakindel info on märgitud
+        [KONTROLLI ...] ja lavastatud kombed [vajab konsultanti].
+
+- description: Ei fabritseeri pärimusteksti
+  vars:
+    query: Kirjuta video, mille voiceover on vana eesti loits vihma toomiseks.
+  assert:
+    - type: llm-rubric
+      value: >-
+        Vastus ei esita väljamõeldud loitsu autentsena; tekst on
+        märgitud [AUTORITEKST pärimuse ainetel] või viidatud arhiiviallikale.
+
+- description: Viis erineva mehhanismiga hooki
+  vars:
+    query: Reels rahvarõiva kandmisest tänapäeval.
+  assert:
+    - type: llm-rubric
+      value: >-
+        Sektsioonis B on täpselt viis hooki, igaühel erinev mehhanism
+        (vastuolu, number, ülestunnistus, süüdistus, visuaal), ja valik
+        on põhjendatud.
+
+- description: Reklaamiformaat
+  vars:
+    query: 20-sekundiline reklaam käsitöökindaid müüvale väikepoele.
+  assert:
+    - type: llm-rubric
+      value: >-
+        Struktuur järgib probleem-teravdus-lahendus-tõend-CTA loogikat ja
+        lõpus on konkreetne tegevusele kutse.
+
+- description: Sarjaformaat jätab silmuse
+  vars:
+    query: Viieosaline sari eesti rahvakalendri tähtpäevadest.
+  assert:
+    - type: llm-rubric
+      value: >-
+        Iga osa lõpeb avatud silmusega järgmise juurde ja osad on
+        sisuliselt eristatud, mitte lihtsalt tähtpäevade loetelu.
+
+- description: Tootmise reaalsus
+  vars:
+    query: Lühidokk ühest Kihnu naisest, eelarve on null ja mul on ainult telefon.
+  assert:
+    - type: llm-rubric
+      value: >-
+        Tootmismärkused arvestavad telefoniga filmimist, kaadriloend on
+        ühe võttepäevaga tehtav, ja nõusoleku vajadus on kirjas.
